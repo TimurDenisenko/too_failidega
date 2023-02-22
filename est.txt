@@ -5,3 +5,5 @@ Kopeerima
 Kleebima
 Salasõna
 Kasutaja nimi
+Ema
+Isa
