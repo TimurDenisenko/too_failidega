@@ -2,41 +2,51 @@ from gtts import *
 from random import *
 import os
 
-def loe(x:str)->str:
-    """
-    opisanie
-    """
-    f=open(x,"r",encoding="utf-8-sig")
-    jarjend=[]
-    for rida in f:
-        jarjend.append(rida.strip()) 
-    f.close()
-    return jarjend 
+def isrus(x:str):
+    alphRL=['а','б','в','г','д','е','ё','ж','з','и','й','к','л','м','н','о','п','р','с','т','у','ф','х','ц','ч','ш','щ','ъ','ы','ь','э','ю','я']
+    alphRU=[x.upper() for x in alphRL] 
+    alphR=alphRL+alphRU
+    xkop=list(x)
+    for i in range(len(xkop)):
+        if xkop[i] not in alphR:
+            return False
+    return True
 
-def kirjuta(x:str,y:list):
-    """
-    opisanie
-    """
-    f=open(x,"w",encoding="utf-8-sig")
-    for line in y:
-        f.write(line+"\n")
-    f.close() 
+def isest(x:str):
+    alphEL=['a','b','c','d','e','f','g','h','i','j','k','l','m','n','o','p','q','r','s','t','u','v','w','x','y','z']
+    alphEU=[x.upper() for x in alphEL] 
+    alphE=alphEL+alphEU
+    xkop=list(x)
+    for i in range(len(xkop)):
+        if xkop[i] not in alphE:
+            return False
+    return True
+
+def finl(fail):
+    spisok=[] 
+    with open(fail,'r',encoding="utf-8-sig") as f:
+        for line in f:
+            spisok.append(line.strip())
+    return spisok
+
+def sav(x,fail):
+    for i in range(len(x)):
+        x[i]=x[i]+"\n"
+    with open(fail,"w",encoding="utf-8-sig") as f:
+        f.writelines(x)
 
 def heli(text:str,keel:str):
     obj=gTTS(text=text,lang=keel,slow=False).save("chinano.mp3") 
     os.system("chinano.mp3")
 
-def tolk(fail1:str,fail2:str):
-    rus=[] 
-    est=[]
-    f=open(fail1,'r',encoding="utf-8-sig")
-    for line in f:
-        rus.append(line.strip())
-    f.close()
-    f=open(fail2,'r',encoding="utf-8-sig")
-    for line in f:
-        est.append(line.strip()) 
-    f.close()
+def loe(x:str)->str:
+    with open(x,"r",encoding="utf-8-sig") as f:
+        jarjend=[]
+        for rida in f:
+            jarjend.append(rida.strip()) 
+        return jarjend 
+
+def tolk(rus,est):
     sona=input("Kirjutage sõna, mida soovite tõlkida ")
     while sona.isdigit():
         sona=input("Kirjuta õige sõna")
@@ -46,29 +56,18 @@ def tolk(fail1:str,fail2:str):
         while vale not in ["jah","ei"]:
             vale=input("Kirjuta ainult jah või ei ") 
         if vale=="jah":
-            keel=input("Kas see on vene keel või eesti keel? ").lower()
-            while keel not in ["vene keel","eesti keel"]:
-                keel=input("Kirjutage ainult vene keel või eesti keel ")
-            if keel=="vene keel":
-                f=open(fail1,'a',encoding="utf-8-sig") 
-                f.write("\n"+sona) 
-                f.close()
+            if isrus(sona)==True:
+                rus.append(sona)
                 tolke=input("Kirjutage sõna tõlge ") 
                 while tolke.isdigit():
                     tolke=input("Kirjuta õige sõna ")
-                f=open(fail2,"a",encoding="utf-8-sig")
-                f.write("\n"+tolke) 
-                f.close()
+                est.append(tolke)
             else: 
-                f=open(fail2,'a',encoding="utf-8-sig") 
-                f.write("\n"+sona) 
-                f.close()
+                rus.append(sona)
                 tolke=input("Kirjutage sõna tõlge ") 
                 while tolke.isdigit():
                     tolke=input("Kirjuta õige sõna ")
-                f=open(fail1,"a",encoding="utf-8-sig")
-                f.write("\n"+tolke) 
-                f.close()
+                est.append(sona)
         else:
             print("Olgu, hüvasti")
     for i in range(len(rus)):
@@ -78,69 +77,36 @@ def tolk(fail1:str,fail2:str):
         elif sona==est[i]:
             print(f"{est[i]} - {rus[i]}")
             heli(rus[i],"ru") 
+    sav(rus,'rus.txt');sav(est,'est.txt')
 
 def paranda(fail1:str,fail2:str):
-    rus=[] 
-    est=[]
-    f=open(fail1,'r',encoding="utf-8-sig")
-    for line in f:
-        rus.append(line.strip())
-    f.close()
-    f=open(fail2,'r',encoding="utf-8-sig")
-    for line in f:
-        est.append(line.strip()) 
-    f.close()
-    keel=input("Kas parandame vene või eesti sõnaraamatus? ").lower()
-    while keel not in ["vene","eesti"]:
-        keel=input("Kirjuta vene või eesti ")
-    if keel=="vene":
-        indv=input("Millist sõna soovite parandada? ")
-        while indv not in rus:
-            indv=input("Kirjutage õige sõna ")
-        for i in range(len(rus)):
-            if indv==rus[i]:
-                ind=rus.index(indv) 
-        parasona=input("Kirjutage parandatud sõna ")
-        while parasona.isdigit():
-            parasona=input("Kirjutage õige sõna ")
-        rus[ind]=parasona
-        for i in range(len(rus)):
-            rus[i]=rus[i]+"\n"
-        f=open(fail1,"w",encoding="utf-8-sig")
-        f.writelines(rus)
-        f.close()
+    rus,est=finl(fail1,fail2)
+    indv=input("Millist sõna soovite parandada? ")
+    while indv not in rus and indv not in est:
+        indv=input("Kirjutage õige sõna ")
+    ind=rus.index(indv) 
+    if ind==None:
+        ind=est.index(indv) 
+    parasona=input("Kirjutage parandatud sõna ")
+    while parasona.isdigit():
+        parasona=input("Kirjutage õige sõna ")
+    if isrus(indv)==True:
+        rus.pop(ind) 
+        rus.insert(ind,parasona)
     else:
-        indv=input("Millist sõna soovite parandada? ")
-        while indv not in est:
-            indv=input("Kirjutage õige sõna ")
-        for i in range(len(rus)):
-            if indv==est[i]:
-                ind=est.index(indv) 
-        parasona=input("Kirjutage parandatud sõna ")
-        while parasona.isdigit():
-            parasona=input("Kirjutage õige sõna ")
-        est[ind]=parasona
-        for i in range(len(rus)):
-            est[i]=est[i]+"\n"
-        f=open(fail2,"w",encoding="utf-8-sig")
-        f.writelines(est)
-        f.close()
+        est.pop(ind)
+        est.insert(ind)
+    sav(rus,'rus.txt');sav(est,'est.txt')
 
 def harjutus(fail1:str,fail2:str):
-    rus=[] 
-    est=[]
     game=[] 
     a=[]
     v=k=0
-    f=open(fail1,'r',encoding="utf-8-sig")
-    for line in f:
-        rus.append(line.strip())
-    f.close()
-    f=open(fail2,'r',encoding="utf-8-sig")
-    for line in f:
-        est.append(line.strip()) 
-    f.close() 
-    for i in range(len(rus)):
+    rus,est=finl(fail1,fail2)
+    numa=input("Mitu korda sa mängid? ")
+    while numa.isdigit()==False or int(numa)>len(rus):
+        numa=input("Kirjuta õige arv ")
+    for i in range(int(numa)):
         num=randint(0,(len(rus)-1))
         while num in a:
             num=randint(0,(len(rus)-1))
@@ -148,8 +114,7 @@ def harjutus(fail1:str,fail2:str):
         while keel not in ["vene","eesti"]:
             keel=input("Kirjutage ainult vene või eesti ").lower() 
         if keel=="vene":
-            rana=rus[num] 
-            tolk=input(f"Mis on sõna {rana} tõlge? ") 
+            tolk=input(f"Mis on sõna {rus[num]} tõlge? ") 
             if tolk==est[num]:
                 game.append(f"{i+1} {keel} mäng - võit")
                 print("Võit") 
@@ -159,8 +124,7 @@ def harjutus(fail1:str,fail2:str):
                 print("Kaotus")
                 k+=1
         else:
-            rana=est[num] 
-            tolk=input(f"Mis on sõna {rana} tõlge? ") 
+            tolk=input(f"Mis on sõna {est[num] } tõlge? ") 
             if tolk==rus[num]:
                 game.append(f"{i+1} {keel} mäng - võit")
                 print("Võit")
@@ -170,8 +134,7 @@ def harjutus(fail1:str,fail2:str):
                 print("Kaotus")
                 k+=1
         a.append(num)
-    print(game)
-    resV=round((v/len(rus)*100),1)
-    resK=round((k/len(rus)*100),1)
-    print(f"Võiduprotsent - {resV}")
-    print(f"Kaotusprotsent - {resK}")
+    resV=round((v/num*100),1)
+    resK=round((k/num*100),1)
+    print(f"Võiduprotsent - {resV}%")
+    print(f"Kaotusprotsent - {resK}%")
